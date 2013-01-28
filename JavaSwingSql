@@ -1,0 +1,695 @@
+
+//--------------------------------------------------------------- Clase Conexion
+
+package paquete_conexion;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.PreparedStatement;
+
+import javax.swing.JOptionPane;
+
+
+public class Conexion {
+
+  private String usuario = "xxx", 
+	               password = "xxxxx",
+	               url = "jdbc:sqlserver://localhost:1433; databaseName=db_prueba_a;integratedSecurity=true;";
+	
+	Connection  conexion = null;
+	
+	public Conexion(){
+	  this.conectar();	
+	}
+	
+	public void conectar(){
+		try{
+		  Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+		  conexion = DriverManager.getConnection(this.getUrl(),this.getUsuario(),this.getPassword());
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Error: "+ex.toString()+" -> Class: Conexion");
+		}
+	}
+	
+	// getter 
+	
+	public Connection getConectar(){
+		return this.conexion;
+	}
+	
+	public Connection getDesconectar(){
+		return this.conexion = null;
+	}
+	
+	public String getUsuario(){
+		return this.usuario;
+	}
+	
+	public String getPassword(){
+		return this.password;
+	}
+	
+	public String getUrl(){
+		return this.url;
+	}
+	
+}//Class
+
+//--------------------------------------------------------------- Clase  SqlConsulta
+
+package paquete_sql;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
+
+import paquete_conexion.Conexion;
+
+
+public class SqlConsulta {
+
+  Conexion conexion;
+	PreparedStatement declaracion;
+	ResultSet resultado;
+	String sql , dato;
+    int datoInt;
+    
+	public SqlConsulta(){
+		this.conexion = new Conexion();
+	}
+	
+	// NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+	
+	public void sqlInsertCliente(String ... valores){
+		this.sql = "INSERT cliente VALUES (?,?,?,?,?,?)";
+		this.setSql(this.sql);
+		int id = 0;
+		
+		try{
+		    this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());
+		    
+		    
+		       this.declaracion.setString(1,valores[0]);
+		       this.declaracion.setString(2,valores[1]);
+		       this.declaracion.setString(3,valores[2]);
+		       this.declaracion.setString(4,valores[3]);
+		       this.declaracion.setString(5,valores[4]);
+		       id = Integer.parseInt(valores[5]);
+		       this.declaracion.setInt(6,id);
+		       
+		       this.declaracion.executeUpdate();
+		    
+		    JOptionPane.showMessageDialog(null, "Cliente Guardado");
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Error: "+ex.toString()+"\n"+
+					                           " -> Class: SqlConsulta "+"\n"+ 
+					                           "-> metodo: sqlInsertCliente");
+		}
+			
+	}
+	
+	public ResultSet sqlQueryCliente(String id_cliente){
+		this.sql = "SELECT * FROM cliente WHERE id_cliente = ?";
+		this.setSql(this.sql);
+		try {
+		   this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());
+		   this.declaracion.setString(1,id_cliente);
+		   this.setResultado(this.declaracion.executeQuery());
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Error: "+ex.toString()+" -> Class: SqlConsulta - metodo: sqlQueryCliente");
+		}
+		return this.getResultado();
+	}
+	
+	public ResultSet sqlQueryCiudad(){
+		this.sql = "SELECT * FROM ciudad";
+		this.setSql(this.sql);
+		try{
+		  this.declaracion =  this.conexion.getConectar().prepareStatement(this.getSql());
+		  this.setResultado(this.declaracion.executeQuery());
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Error: "+ex.toString()+" -> Class: SqlConsulta - metodo: sqlConsultaCiudad");
+		}
+		return this.getResultado();
+	}
+	
+	public String sqlQueryCambiarIdCiudad(int datoId){
+		this.sql = "SELECT * FROM ciudad WHERE id_ciudad = ?";
+		this.setSql(this.sql);
+		try {
+			this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());
+			this.declaracion.setInt(1, datoId);
+			this.resultado = this.declaracion.executeQuery();
+			while(this.resultado.next()){
+				this.setDato(this.resultado.getString("nombre"));
+			}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return this.getDato(); 
+	}
+	
+	public int sqlQueryDevolverIntIdCiudad(String valor){
+		this.sql = "SELECT * FROM ciudad WHERE nombre = ?";
+		this.setSql(this.sql);
+		try{
+		   this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());
+		   this.declaracion.setString(1, valor);
+		   this.resultado = this.declaracion.executeQuery();
+		       while(this.resultado.next()){
+		            this.setDatoInt(this.resultado.getInt(1)); 
+		       }
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Error:"+ex.toString()+"\n"+
+					                           "Clases: SqlConsulta"+"\n"+
+					                           "Metodo: sqlQueryDevolverIntIDCiudad");
+		}
+		return this.getDatoInt();
+	}
+	
+	public void setDato(String _dato){
+		this.dato = _dato;
+	}
+	
+	public String getDato(){
+		return this.dato;
+	}
+	
+	public void setResultado(ResultSet _resultado){
+		this.resultado = _resultado;
+	}
+	
+	public ResultSet getResultado(){
+		return this.resultado;
+	}
+	
+	public void setDatoInt(int dato){
+		this.datoInt = dato;
+	}
+	
+	public int getDatoInt(){
+		return this.datoInt;
+	}
+	
+	// :::::::::::::::::::::::: OLD OLD OLD  :::::::::::::::::::::::::::
+	
+	public void sqlQuery(String tabla, String id,String buscar,String campos[]) throws SQLException{
+	   String _sql = "SELECT * FROM "+tabla+" "+"WHERE"+" "+id+" = "+"?";
+	   this.setSql(_sql);
+	   this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());
+       this.declaracion.setString(1,buscar);
+       this.resultado = this.declaracion.executeQuery();
+       
+       while(this.resultado.next()){
+         for(String campoX : campos){
+    	    System.out.println(this.resultado.getString(campoX));
+    	   }
+       }
+       
+       this.resultado.close();
+       this.declaracion.close();
+	}
+	
+	public void sqlQuery(String tabla, String id, int buscar, String campos[]) throws SQLException{
+		String _sql = "SELECT * FROM "+tabla+" "+"WHERE"+" "+id+" = "+"?";
+		this.setSql(_sql);
+		this.declaracion = this.conexion.getConectar().prepareStatement(_sql);
+		this.declaracion.setInt(1, buscar);
+		this.resultado = this.declaracion.executeQuery();
+	    
+		while(this.resultado.next()){
+			for(String campoX : campos){
+			System.out.println(this.resultado.getString(campoX));
+	    	}
+		}	
+		this.resultado.close();
+		this.declaracion.close();
+	}
+	
+	public void sqlInsert(String tabla,String campos[]) throws SQLException{
+		String insert = "INSERT "+tabla+" values (";
+		
+		StringBuffer sqlBuf = new StringBuffer(campos.length-1);
+		sqlBuf.append(insert);
+		int posicion = 0 , 
+			   filas = 0;
+		
+		for(String x : campos){
+			posicion++;
+	        sqlBuf.append("?");
+	        	        
+	     if(posicion == campos.length){
+	       sqlBuf.append(" )");
+		   this.setSql(sqlBuf.toString());
+		   this.declaracion = this.conexion.getConectar().prepareStatement(this.getSql());		   
+		   
+		       this.declaracion.setString(1,campos[0]);
+		       this.declaracion.setString(2,campos[1]);
+		       this.declaracion.setString(3,campos[2]);
+		       this.declaracion.setString(4,campos[3]);
+		       
+		       filas = this.declaracion.executeUpdate();
+		       this.declaracion.close();
+		   
+		       System.out.println("Filas Afectadas:"+filas+"\n"+"Sentencia Insert: "+this.getSql());
+	     }else{
+	    	 sqlBuf.append(" , ");
+	     }
+	  }//foreach
+		
+	}// fin metodo: sqlInsert
+	
+	// setter
+	
+	public void setSql(String _sql){
+		this.sql = _sql;
+	}
+	
+	// getter
+	
+	public String getSql(){
+		return this.sql;
+	}
+	
+}
+
+//--------------------------------------------------------------- Clase  Cliente
+
+package paquete_modelo;
+
+import javax.swing.JOptionPane;
+
+
+public class Cliente {
+
+
+  private String id,
+	               nombre,
+	               apellido,
+	               direccion,
+	               telefono;
+	
+	private int id_ciudad;
+	
+	public Cliente(){
+		
+	}
+	
+	// setter
+	
+	public void setId(String _id){
+		if(_id != null){
+			this.id = _id;
+		}else{
+			JOptionPane.showMessageDialog(null,"ID Cliente no puede estar Vacio !!!");
+		}
+	}
+	
+	public void setNombre(String _nombre){
+		if(_nombre != null){
+			this.nombre = _nombre;
+		}else{
+			JOptionPane.showMessageDialog(null,"Nombre Cliente no puede estar Vacio !!!");
+		}
+	}
+	
+	public void setApellido(String _apellido){
+		if(_apellido != null){
+			this.apellido = _apellido;
+		}else{
+			JOptionPane.showMessageDialog(null,"Apellido Cliente no puede estar Vacio !!!");
+		}
+	}
+	
+	public void setDireccion(String _direccion){
+		if(_direccion != null){
+			this.direccion = _direccion;
+		}else{
+			JOptionPane.showMessageDialog(null,"Direccion Ciente no puede estar Vacio !!!");
+		}
+	}
+	
+	public void setIdCiudad(int _idCiudad){
+		if(_idCiudad <= 0){
+			this.id_ciudad = _idCiudad;
+		}else{
+			JOptionPane.showMessageDialog(null,"ID Ciudad no puede estar Vacio");
+		}
+	}
+	
+	// getter
+	
+	public String getId(){
+		return this.id;
+	}
+	
+	public String getNombre(){
+		return this.nombre;
+	}
+	
+	public String getApellido(){
+		return this.apellido;
+	}
+	
+	public String getDireccion(){
+		return this.direccion;
+	}
+	
+	public String getTelefono(){
+		return this.telefono;
+	}
+	
+	public int getCiudad(){
+		return this.id_ciudad;
+	}
+	
+}//Cliente
+
+
+//--------------------------------------------------------------- Clase  FrmCliente
+
+package paquete_interfaz;
+
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import paquete_conexion.Conexion;
+import paquete_evento.EventoCliente;
+import paquete_sql.SqlConsulta;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
+public class FrmCliente extends JFrame{
+
+  public JTextField txtIdCliente = new JTextField(20);
+    public JTextField txtNombre = new JTextField(20);
+    public JTextField txtApellido = new JTextField(20);
+    public JTextField txtTelefono = new JTextField(15);
+    public JTextArea txtAreaDireccion = new JTextArea(4,50);
+    public JComboBox comboCiudad = new JComboBox();
+	public JButton botonBuscar = new JButton("Buscar");
+	public JButton botonSalir = new JButton("Salir");
+	
+	private JPanel panelTextos;
+	private JPanel panelBotones;
+	
+	ResultSet resultado;
+	PreparedStatement prepared;
+	
+	SqlConsulta sql = new SqlConsulta();
+	EventoCliente evento = new EventoCliente(this);
+	
+	public FrmCliente() throws SQLException{
+		this.addPaneles();
+	
+	}
+	
+	public void addPaneles() throws SQLException{
+		this.setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
+		this.add(this.panelTextos() , BorderLayout.NORTH);
+		this.add(this.panelBotones() , BorderLayout.SOUTH);
+		this.pack();
+	}
+
+	public void cargarComboBox() throws SQLException{
+	   this.resultado = this.sql.sqlQueryCiudad();
+	   
+	   while(this.resultado.next()){	   
+	       this.comboCiudad.addItem(this.resultado.getObject("nombre"));
+	   }
+	   
+	}
+	
+	public JPanel panelTextos() throws SQLException{
+		this.panelTextos = new JPanel();
+    	this.panelTextos.setLayout(new GridLayout(6,2));
+		this.cargarComboBox();
+		
+		this.panelTextos.add(new JLabel("ID Cliente: "));
+		this.panelTextos.add(this.txtIdCliente);
+		
+		this.panelTextos.add(new JLabel("Nombre: "));
+		this.panelTextos.add(this.txtNombre);
+		
+		this.panelTextos.add(new JLabel("Apellidos: "));
+		this.panelTextos.add(this.txtApellido);
+		
+		this.panelTextos.add(new JLabel("Dirección: "));
+		this.panelTextos.add(this.txtAreaDireccion);
+		
+		this.panelTextos.add(new JLabel("Teléfono: "));
+		this.panelTextos.add(this.txtTelefono);
+		
+		this.panelTextos.add(new JLabel("Ciudad: "));
+		this.panelTextos.add(this.comboCiudad);
+		return this.panelTextos;
+ 	}
+	
+	public JPanel panelBotones(){
+		this.panelBotones = new JPanel(new FlowLayout());
+		this.botonBuscar.addActionListener(evento);
+		this.botonSalir.addActionListener(evento);
+		this.panelBotones.add(this.botonBuscar);
+		this.panelBotones.add(this.botonSalir);
+		return this.panelBotones;
+	}
+
+	
+}//FrmCliente
+
+
+//--------------------------------------------------------------- Clase InterfazA
+
+package paquete_interfaz;
+
+import java.util.Vector;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import paquete_conexion.Conexion;
+import paquete_sql.SqlConsulta;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.ResultSetMetaData;
+
+
+public class InterfazA extends JFrame{
+
+  DefaultTableModel modeloTable;
+	JTable tabla;
+	SqlConsulta consulta = new SqlConsulta();
+	Conexion conexion = new Conexion();
+    String sql;
+    PreparedStatement prepared;
+    ResultSet result;
+    ResultSetMetaData meta;
+    int datox;
+    
+	public InterfazA(){
+		this.add(this.tabla());
+		this.pack();
+		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
+	}
+	
+	public JTable tabla(){
+		this.modeloTable = new DefaultTableModel();
+		this.sql = "SELECT * FROM cliente";
+		this.setSql(this.sql);
+		
+        try {
+			this.prepared = this.conexion.getConectar().prepareStatement(this.getSql());
+	        this.result = this.prepared.executeQuery();
+	        
+	        this.meta = this.result.getMetaData();
+	        int columnas = 0;
+	        columnas = this.meta.getColumnCount();
+	        
+	        this.modeloTable.addColumn("ID Cliente");
+	        this.modeloTable.addColumn("Nombre");
+	        this.modeloTable.addColumn("Apellido");
+	        this.modeloTable.addColumn("Direccion");
+	        this.modeloTable.addColumn("Teléfono");
+	        
+	        this.tabla = new JTable(this.modeloTable);
+	        
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(null, ex.toString());
+		}
+     
+		return this.tabla;
+	}
+
+	 //-----
+	
+    public int getDatox(){
+    	return this.datox;
+    }
+    
+    public void setDatox(int _da){
+    	 this.datox = _da;
+    }
+
+	public String[] getColumnas (){
+		
+		String[] columnas = {"Nombre" , "Apellido"};
+		
+		return columnas;
+	}
+	
+	public Object[][] getFilas(){
+		Object[][] filas = {
+				            {"Juan","Montilla","Valencia","90807676"},
+				            {"vanaessa","Nadal","caracas","234343454"}
+		                   }; 
+		
+	  return filas;
+	}
+
+	public void setSql(String _sql){
+		this.sql = _sql;
+	}
+	
+	public String getSql(){
+		return this.sql;
+	}
+	
+}//Class
+
+
+//--------------------------------------------------------------- Clase EventoCliente
+
+package paquete_evento;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import paquete_interfaz.FrmCliente;
+import paquete_sql.SqlConsulta;
+
+
+public class EventoCliente implements ActionListener{
+
+    FrmCliente cliente;  
+    SqlConsulta sql = new SqlConsulta();
+    ResultSet resultado;
+    
+	public EventoCliente(FrmCliente fCliente){
+		this.cliente =  fCliente;
+	}
+	
+	public void eventoBuscar() throws SQLException{
+		this.resultado = this.sql.sqlQueryCliente(this.cliente.txtIdCliente.getText());		
+		
+	    while(this.resultado.next()){
+	    	this.cliente.txtNombre.setText(this.resultado.getString("nombre"));
+	    	this.cliente.txtApellido.setText(this.resultado.getString("apellido"));
+	    	this.cliente.txtAreaDireccion.setText(this.resultado.getString("direccion"));
+	    	this.cliente.txtTelefono.setText(this.resultado.getString("telefono"));
+	    	
+	    	String dato = this.sql.sqlQueryCambiarIdCiudad(this.resultado.getInt(6));
+	    	
+	    	this.cliente.comboCiudad.setSelectedItem(dato);
+	    }	
+	}
+	
+	public void eventoGuardar(){
+		String id =  this.cliente.txtIdCliente.getText(),
+		   nombre = this.cliente.txtNombre.getText(),
+	     apellido = this.cliente.txtApellido.getText(),
+	    direccion = this.cliente.txtAreaDireccion.getText(),
+	     telefono = this.cliente.txtTelefono.getText();
+		 
+		String valor = (String)this.cliente.comboCiudad.getSelectedItem(); 
+	     
+	     int id_ciu = this.sql.sqlQueryDevolverIntIdCiudad(valor);  
+	     String id_ciudad = Integer.toString(id_ciu); 
+	     
+		this.sql.sqlInsertCliente(id,nombre,apellido,direccion,telefono,id_ciudad);
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent ev) {
+		
+      		if(ev.getSource().equals(this.cliente.botonBuscar)){
+      			try {
+					this.eventoBuscar();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+      		}
+      		
+      		if(ev.getSource().equals(this.cliente.botonSalir)){
+      			this.eventoGuardar();
+      		}
+      		
+	}
+
+}//Class EventoCliente
+
+
+//--------------------------------------------------------------- Clase Inicio
+
+
+package paquete_inicio;
+
+import java.sql.SQLException;
+
+import paquete_interfaz.FrmCliente;
+import paquete_sql.SqlConsulta;
+
+import paquete_interfaz.InterfazA;
+
+
+public class Inicio {
+
+  /**
+	 * @param args
+	 * @throws SQLException 
+	 */
+	
+	public static void main(String[] args) throws SQLException {
+        
+		FrmCliente fCliente = new FrmCliente();
+		fCliente.setVisible(true);
+        
+		//SqlConsulta sql = new SqlConsulta();
+		//sql.sqlQueryCiudad();
+
+		//InterfazA a = new InterfazA();
+        //a.setVisible(true);
+		
+	}
+
+}//Inicio
+
