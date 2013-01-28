@@ -1,0 +1,419 @@
+
+//------------------------------------------------------------ Clase SqlDML
+
+?php
+
+require_once "../conexion/Conexion.php";
+
+class SqlDML{
+  
+	private $conexion;
+	
+	public function __construct(){
+		$this->conexion = new Conexion("localhost","root","2468","db_systema");
+		$this->conexion->conectarServidor();
+		$this->conexion->conectarBaseDatos();
+	}
+	
+	// add Registros add Registros add Registros add Registros add Registros add Registros add Registros add Registros
+	
+	public function addAlumno($id,$nombre,$apellido,$direccion,$edad,$sexo,$fecha,$telf){
+		$sql = "insert into alumno(id_alumno,nombre,apellido,,direccion,edad,sexo,fecha_nacimiento,$telefono)
+		                    values('$id',$nombre','$apellido','$direccion','$edad','$sexo','fecha','telf')";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function addDocente($id,$nombre,$apellido,$direccion,$edad,$estado_civil,$hijos,$correo,$id_cargo){
+		$sql = "insert into docente(id_docente,nombre,apellido,direccion,edad,estado_civil,nro_hijos,correo,id_cargo)
+				             values('$id','$nombre','$apellido','$direccion','$edad','$estado_civil','$hijos','$correo','$id_cargo')";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function addMateria($nombre){
+		$sql = "insert into materia(nombre)values('$id','$nombre')";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function addProfesion($nombre){
+		$sql = "insert into profesion(nombre)values('$nombre')";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function addCuenta($idCuenta,$idDocente,$usuario,$clave,$pregunta,$estatus,$fecha){
+		$sql= "insert into cuenta_usuario(id_cuenta,id_docente,usuario,clave,pregunta_acceso,estatus,fecha_acceso)
+				                   values('$idCuenta','$idDocente','$usuario','$clave','$pregunta','$estatus','$fecha')";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	// select buscar un Registro select buscar un Registro select buscar un Registro select buscar un Registro select buscar un Registro
+	
+	public function selectAlumno($id){
+		$sql = "select * from alumno where id_alumno = '$id'";
+		$query = mysql_query($sql);
+		$resultado = mysql_fetch_array($query);
+		return $resultado;
+	}
+	
+	public function selectDocente($id){
+		$sql = "select * from docente where id_docente = '$id'";
+		$query = mysql_query($sql);
+		$resultado = mysql_fetch_array($query);
+		return $resultado; 
+	}
+	
+	public function selectMateria($id){
+		$sql = "select * from materia where id_materia = '$id'";
+		$query = mysql_query($sql);
+		$resultado = mysql_fetch_array($query);
+		return $resultado;
+	}
+
+	public function selectProfesion($id){
+		$sql = "select * from profesion where id_profesion = '$id'";
+		$query = mysql_query($sql);
+		$resultado = mysql_fetch_array($query);
+		return $resultado;
+	}
+	
+	public function select($_tabla){
+		$sql = "SELECT * FROM $_tabla";
+		$resultado = mysql_query($sql,$this->conexion->getConectar());
+		return $resultado; 
+	}
+	
+	// update registro update registro update registro update registro update registro update registro update registro update registro
+	
+	public function updateAlumno($id,$nombre,$apellido,$direccion,$edad,$sexo,$fecha,$telf){
+		$sql = "update alumno set id_alumno = '$id', nombre = '$nombre', apellido = '$apellido', direccion = '$direccion',
+		                          edad = '$edad', fecha_nacimiento = '$fecha', telefono = '$telf' 
+		                          where id_alumno = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function updateDocente($id,$nombre,$apellido,$direccion,$edad,$estado_civil,$hijos,$correo,$id_cargo){
+		$sql = "update docente set id_docente = '$id', nombre = '$nombre', apellido = '$apellido',
+		                          direccion = '$direccion' , edad = '$edad', estado_civil = '$estado_civil',
+		                          nro_hijos = '$hijos', correo = '$correo' , id_cargo = '$id_cargo'
+		                          where id_docente = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function updateMateria($nombre){
+		$sql = "update materia set nombre = '$nombre' where id_materia = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function updateProfesion($nombre){
+		$sql = "update profesion set nombre = '$nombre' where id_profesion = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	// delete registro delete registro delete registro delete registro delete registro delete registro delete registro delete registro
+	
+	public function deleteAlumno($id){
+		$sql = "delete * from alumno where id_alumno = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function deleteDocente($id){
+		$sql = "delete * from docente where id_docente = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function deleteMateria($id){
+		$sql = "delete * from materia where id_materia = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	public function deleteProfesion($id){
+		$sql = "delete * from profesion where id_profesion = '$id'";
+		mysql_query($sql,$this->conexion->getConectar());
+	}
+	
+	// Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos Procesos
+	
+	public function login($_usuario,$_clave){
+		$_tipo = "a";
+		$sql = "SELECT * FROM cuenta_usuario WHERE usuario = '$_usuario' and clave = '$_clave' and estatus = '$_tipo'";
+		$resultado = mysql_query($sql,$this->conexion->getConectar());
+		$fila = mysql_fetch_array($resultado);
+		
+		  if($fila == 0){
+		  	echo "<script type=\"text/javascript\">
+		 		           alert(\"Clave Incorrecta !!!\");
+		 		        </script>";
+		  	
+		  }elseif($fila["id_docente"] != NULL){
+		  	       session_start();
+		  	       $_SESSION["tipo_usuario"] = 1;
+				  header("Location:http://localhost/primum/paginas/Menu.php");
+				  echo "<script type=\"text/javascript\">
+		 		           alert(\"No Null\");
+		 		         </script>";
+				  
+	    	  }elseif(empty($fila["id_docente"])){
+	    	  	      session_start();
+	    	  	      $_SESSION["tipo_usuario"] = 2;
+	    	    	  header("Location:http://localhost/primum/paginas/Menu.php");
+			          echo "<script type=\"text/javascript\">
+		 		              alert(\"Es Null\");
+		 		            </script>";
+		     }else{
+		   	       echo "<script type=\"text/javascript\">
+		 		            alert(\"Clave Incorrecta\");
+		 		         </script>";
+		   }
+		
+	}//fin function login
+	
+}
+
+//------------------------------------------------------------ Clase CuerpoHtml
+
+require_once '../sql/SqlDML.php';
+
+class CuerpoHtml{
+  
+	 private $_sql;
+	
+	public function __construct(){
+		$this->_sql = new SqlDML();
+	}
+	
+	// JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT JAVASCRIPT
+	
+	public function addJavaScript($_fuente){
+		echo "<script type = \"Text/JavaScript\" src = \"../script/$_fuente\"></script>";
+	}
+	
+	// INICIO HTML INICIO HTML INICIO HTML INICIO HTML INICIO HTML INICIO HTML INICIO HTML INICIO HTML INICIO HTML
+	
+	public function inicioHtmlsinFondo($_titulo , $_javaScriptOnLoad){
+		echo "<html>";
+		echo "<head><title>$_titulo</title></head>";
+		echo "<body onload = $_javaScriptOnLoad>";
+	}
+	
+	public function inicioHtmlConFondo($_titulo, $_pathImagen){
+		echo "<html>";
+		echo "<head><title>$_titulo</title></head>";
+		echo "<body background = $_pathImagen>";
+	}
+
+	public function inicioHtmlConFrame($_titulo,$_paginaFrameBanner,$_paginaFrameMenu,$_paginaFrameBody){
+		echo "<html>";
+		echo "<head><title>$_titulo</title><head>";
+		echo "<frameset rows = 100,*>";
+		echo "<frame name = htmlBanner src = $_paginaFrameBanner frameborder = 1 noresize>";
+		    echo "<frameset cols = 200,*>";
+		        echo "<frame name = htmlMenu src = $_paginaFrameMenu frameborder = 1 noresize>";
+		        echo "<frame name = htmlPrincipal src = $_paginaFrameBody frameborder = 1 noresize>";
+	    	echo "</frameset>";
+	    echo "</frameset>";
+		echo "<body>";
+		$this->identificarMenu($_tipo_usuario);
+	}
+	
+	public function inicioHtmlConBgColor($_titulo , $_bgColor){
+		echo "<html>";
+		echo "<head><title>$_titulo</title></head>";
+		echo "<body bgcolor = $_bgColor>";
+	}
+	
+	public function finHtml(){
+		echo "</body>";
+		echo "</html>";
+	}
+	
+	
+	public function lineaDePuntos(){
+		echo "---------------------------------------------------------------------------------------------------------------------------------------------------------|-";
+	}
+	
+	// COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO COMBO
+	
+	public function comboDBAlumno(){
+		$resultado = $this->_sql->select("alumno");
+	
+		echo "<select name = comboDBAlumno id = iComboDBAlumno>";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_alumno"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboDBCargo(){
+		$resultado = $this->_sql->select("cargo");
+	
+		echo "<select name = comboDBCargo id = iComboDBCargo>";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_cargo"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboDBDocente(){
+		$resultado = $this->_sql->select("docente");
+	
+		echo "<select name = comboDBDocente id = iComboDBDocente>";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_docente"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboDBMateria(){
+		$resultado = $this->_sql->select("materia");
+	
+		echo "<select name = comboDBMateria id = iComboDBMateria>";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_materia"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboDBProfesion(){
+		$resultado = $this->_sql->select("profesion");
+	
+		echo "<select name = \"comboDBProfesion\" id = \"iComboDBProfesion\">";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_profesion"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboGradoCursante(){
+		echo "<select name = \"comboGradoCursante\" id = \"iComboEstatus\">";
+		$estatus = array("Activo","Inactivo","Administrador");
+		for($x = 1 ; $x <= 3 ;$x++){
+			echo "<option value= $x> $estatus[$x]; </option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboEstatus(){
+		echo "<select name = \"comboEstatus\" id = \"iComboEstatus\">";
+		$estatus = array("Activo","Inactivo","Administrador");
+		for($x = 1 ; $x <= 3 ;$x++){
+			echo "<option value= $x> $estatus[$x]; </option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboEdad(){
+		echo "<select name = comboEdad id = iComboEdad>";
+		for($x = 10 ; $x <= 50 ;$x++){
+		   echo "<option value= $x> $x </option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboHijos(){
+		echo "<select name = comboHijos id = iComboHijos>";
+		for($x = 0 ; $x <= 10 ; $x++){
+			echo "<option value = $x>$x</option>";
+		}
+		echo "</select>";
+	}
+	
+	public function comboEstadoCivil(){
+		$estados = array("Soltero","Casado","Divorciado","Viudo");
+		echo "<select name = comboEstadoCivil id = iComboEstadoCivil>";
+		foreach ($estados as $valor){
+		  echo "<option value = $valor>$valor</option>";
+		}
+		echo "</select>";
+	}
+	
+	// MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU
+	
+	public function identificarMenu($_tipo_usuario){
+		if($_tipo_usuario == 1){
+			$this->menuDocente();
+		}elseif($_tipo_usuario == 2){
+			$this->menuAdministrador();
+		}
+	}
+	
+	public function menuDocente(){
+		echo "<p>";
+		echo "<ul type = square>";
+		echo "<li><a href = \"../paginas/FormNotas.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Cargar Notas</b></a>
+			  <li><a href = \"\" style='text-decoration:none;color:#08088A'><b>Consultar Notas</b></a>
+			  <li><a href = \"\" style='text-decoration:none;color:#08088A'><b>Consultar Boletas</b></a>
+			  <li><a href = \"\" style='text-decoration:none;color:black'><b>Mostrar Reportes</b></a> ";
+		echo "</ul>";
+	}
+	
+	public function menuAdministrador(){
+		echo "<p>";
+		echo "<ul type = square>";
+		echo "<li><a href = \"../paginas/FormDocente.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Cargar Docente</b></a>   
+			  <li><a href = \"../paginas/FormAlumno.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Cargar Alumno</b></a>    
+			  <li><a href = \"../paginas/FormMateria.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Cargar Materia</b></a>
+			  <li><a href = \"../paginas/FormProfesion.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Cargar Profesión</b></a>
+			  <li><a href = \"../paginas/FormCuentas.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:red'><b>Crear Cuentas</b></a>     
+			  <li><a href = \"../paginas/FormConsultarAlumnos.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:#08088A'><b>Consultar Alumnos</b></a>   
+			  <li><a href = \"../paginas/FormConsultarDocentes.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:#08088A'><b>Consultar Docentes</b></a>  
+			  <li><a href = \"../paginas/FormConsultarMaterias.php\" target = \"htmlPrincipal\" style='text-decoration:none;color:#08088A'><b>Consultar Materias</b></a>  
+			  <li><a href = \"\" style='text-decoration:none;color:black'><b>Mostrar Reportes</b></a>    ";
+		echo "</ul>"; 
+	}
+	
+
+	
+}// FIN CLASS
+
+
+//------------------------------------------------------------ Page Index.php
+
+<?php
+
+require_once '../sql/SqlDML.php';
+require_once '../interfaz_html/CuerpoHtml.php';
+//https://w7-pc:4433/svn/svnprimum/
+$sql = new SqlDML();
+$html = new CuerpoHtml();
+
+$html->inicioHtmlConFondo("Iniciar Sesión","../imagenes/fondo1.jpg");
+
+for($x = 0 ; $x <= 9 ; $x++){
+echo "<br>";
+}
+
+echo "<center>";
+echo "<form method = post name = formlogin>";
+echo "<table border = 0>";
+echo "<tr><td colspan = 2 align = right><font face = arial color = #E6E6E6 size = 5><i>Primum</i></font></td></tr>";
+echo "<tr><td align = right><font color = #E6E6E6><b>USUARIO</b></font></td>      <td><input type = text name = txtUsuario size = 30></td> </tr>";
+echo "<tr><td aligh = right><font color = #E6E6E6><b>CONTRASEÑA</b></font></td>   <td><input type = password name = txtClave size = 30></td> </tr>";
+echo "<tr><td colspan = 2 align = right>
+    <input type = submit name = btnAceptar value = Aceptar>
+	  <input type = reset name = btnCancelar value = Cancelar>
+	  </td></tr>";
+echo "</table>";
+echo "</form>";
+echo "</center>";
+
+if(isset($_POST['btnAceptar'])){
+	$sql->login($_POST['txtUsuario'], $_POST['txtClave']);
+}
+
+
+//------------------------------------------------------------ Page Menu.php
+
+<?php
+require_once '../interfaz_html/CuerpoHtml.php';
+
+session_start();
+$html = new CuerpoHtml();
+
+if($_SESSION["tipo_usuario"] == 1){
+  $html->identificarMenu(1);
+	$html->inicioHtmlConBgColor("Menu","#FAFAFA");
+	$html->finHtml();
+}elseif($_SESSION["tipo_usuario"] == 2){
+	$html->identificarMenu(2);
+	$html->inicioHtmlConBgColor("Menu","#FAFAFA");
+	$html->finHtml();
+}
