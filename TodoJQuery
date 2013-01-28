@@ -1,0 +1,693 @@
+
+var $el = document.getElementById('enviar');
+
+window.onload = function(){
+   document.getElementById('tNombre').addEventListener('mouseover',function(){
+     alert("oliji");
+   },false);
+   
+   
+};
+
+// comprobando instancias
+
+var idContador = 1;
+
+function Empleado (nombre, departamento) {
+   this.nombre = nombre || "";
+   this.departamento = departamento || "general";
+   this.id = idContador++;
+}
+
+var $obj = new Empleado(); 
+
+function Admin (){
+	
+}
+
+Admin.prototype = new Empleado();
+
+var $ad = new Admin();
+
+alert("->"+$ad.id);
+
+
+// propiedad con valor sin undefined
+
+function algo(valor1,valor2){
+	this.valor1 = valor1 || "";
+	this.valor2 = valor2 || "x";
+}
+
+var $obj = new algo("juan");
+document.write($obj.valor1+"-"+$obj.valor2);
+
+// invertir un vector javascript
+
+var $vector = new Array("primer","segundo","tercero","cuarto");
+
+$t2 = $vector.length;
+$t1 = $vector.length-1;
+
+for(var $x  in $vector){	
+    $u = $t2--;
+    $p = $t1--;
+    
+	document.write($vector.slice($p,$u));
+}
+
+//tratar con los argumentos 
+
+function algo(valor1,valor2){
+	document.write(arguments[1].length);
+}
+
+algo("mundo","ok");
+
+
+// verificar un formulario
+
+var procesos = {
+		
+		verificar:function(){
+		  var $input = $(':input');
+		  var $radio = $(':radio');
+		  var $check = $(':checkbox');
+		  
+		  $(':input[value=Enviar]').on('click',function(evt){
+			 if(
+			    $($input).first().val().length <= 0 ||
+			    $($input).eq(1).val().length <= 0 ||
+			    $($input).eq(2).val().length <= 0
+			   ){ 
+				  evt.preventDefault();
+			      alert("No pueden existir datos vacios");	 
+			 }else if(
+					 !$($radio).first().is(':checked') && !$($radio).eq(1).is(':checked')
+					 ){
+				        evt.preventDefault();
+				        alert("Debe eligir un sexo");
+			         }else if(
+			        		!$($check).is(':checked')
+			        		){
+			        	    evt.preventDefault();
+			        	    alert("Debe Aceptar los terminos");
+			                }
+		  });
+		},
+		
+};
+
+$(procesos.verificar);
+
+
+//verificar radio
+
+var procesos = {
+	
+		verificarForm:function(){
+			$('#cancelar').on('click',function(){
+				 
+				if(
+				   $('input:radio[name=sexo]')[0].checked == false 
+				 ){
+				   alert("esta tomado");	
+				}
+			});
+			
+			
+		}
+};
+
+$(procesos.verificarForm);
+		
+//ocultar submenu y mostrar submenu
+
+var procesos = {
+	
+  inicioSubMenu:function(){
+	$('#quienes > li').hide();
+	$('#nuestros > li').hide();
+	$('#contacto > li').hide();	
+  },
+	
+  mostrarSubMenu:function(){
+	$('#quienes').on('mouseover',function(){
+	 $('#quienes > li').css({'color':'red'}).show();
+	});  
+	
+	$('#nuestros').on('mouseover',function(){
+		$('#nuestros > li').css({'color':'red'}).show();
+	});
+	
+	$('#contacto').on('mouseover',function(){
+		$('#contacto > li').css({'color':'red'}).show();
+	});
+  },
+  
+  ocultarSubMenu:function(){
+	$('#quienes').on('mouseout',function(){
+		$('#quienes > li').hide();
+	});
+	
+	$('#nuestros').on('mouseout',function(){
+		$('#nuestros > li').hide();
+	});
+	
+	$('#contacto').on('mouseout',function(){
+		$('#contacto > li').hide();
+	});
+  },
+  
+  liBold:function(){
+	  $('ul > li').on('mouseover',function(evt){
+		  evt.preventDefault();
+		 $(this).css({'font-weight':'bold'});
+	  });	  
+  },
+  
+  liNone:function(){
+	  var $valor = $('ul > li').css('width');
+	  $('ul').click(function(){
+	   alert($valor);
+	  });
+  },
+  
+  
+};//fin procesos
+
+$(procesos.inicioSubMenu);
+$(procesos.mostrarSubMenu);
+$(procesos.ocultarSubMenu);
+$(procesos.liBold);
+$(procesos.liNone);
+
+// verificar campos vacios de un form
+
+var procesos = {
+
+clickbAceptar:function(){
+	var $spans = $('span');
+	var $textos = $(':text');
+	
+	$("#bAceptar").click(function(){	
+		$.each($textos,function(x){
+			if($($textos[x]).val().length <= 0){
+			   $($spans[x]).css({'color':'red'});
+		    }else{
+		    	$($spans[x]).css({'color':'black'});
+		    }
+		});
+		
+	});
+},
+
+clickbCancelar:function(){
+	var $textos = $(':text');
+	$('#bCancelar').click(function(){
+     	$.each($textos,function(x){
+	     	$($textos[x]).val("");
+     	});
+     	$('#bAceptar').trigger('click',this.clickbAceptar);
+	});
+}
+
+};
+
+$(procesos.clickbAceptar);
+$(procesos.clickbCancelar);
+
+// slider manual
+
+
+function derecha(){
+	$("#slider li:first").appendTo("#slider");
+}
+
+function izquierda(){
+	$("#slider li:last").prependTo("#slider");
+}
+
+function moverDer(){
+	$("#derecha").on("click",derecha);
+	
+}
+
+function moverIzq(){
+	$("#izquierda").on("click",izquierda);
+}
+
+$(moverDer);
+$(moverIzq);
+
+
+//---------------------- slider automatico 
+
+
+function ocultar(){
+	$("#slider li:gt(0)").hide();
+}
+
+function rotar(){
+	$("#slider li:first-child").fadeOut(500)
+    .next('li').fadeIn(500)
+    .end().appendTo("#slider");
+}
+
+function slider(){
+	setInterval("rotar()",3000);
+}
+
+$(ocultar);
+$(slider);
+
+
+//----------------------------------- desactivar y activar input
+
+$(document).ready(function(){
+	
+	$("#iNombre").attr("disabled",true);
+	$("#iApellido").attr("disabled",true);
+	
+	$("#botonA").click(function(){
+		$("#iNombre").attr("disabled",false);
+		$("#iApellido").attr("disabled",false);
+	});
+	
+	$("#botonB").click(function(){
+		$("#iNombre").attr("disabled",true);
+		$("#iApellido").attr("disabled",true);
+	});
+	
+});
+
+//------------------
+
+var espacioNombre = {
+		
+		objectoPersona:{
+			
+			nombre:"juan",
+			apellido:"montilla",
+			
+			datosPersona:function(){
+				console.log("Nombre"+this.nombre);
+				console.log("Apellido"+this.apellido);
+			},
+			
+		}
+};
+
+var obj = espacioNombre.objectoPersona;
+obj.datosPersona();
+
+//--------------------
+
+$(document).ready(function(){
+	
+	function nuevo(){
+		$('div')
+		   .find('p')
+		   .html("new");
+	}
+	
+	function viejo(){
+		$('div')
+		  .find('p')
+		  .html("Viejo");
+	}
+	
+  $('#iDivA').click(nuevo);	
+  $('#iDivA').dblclick(viejo);
+  
+});
+
+//----------------------
+
+function cargar(){
+	$(':text').attr("disabled",true);
+}
+
+function habilitar(){
+	$('#iBotonA').click(function(){
+		$(':disabled').attr("disabled",false);
+	});
+}
+
+function bloquear(){
+	$('#iBotonB').click(function(){
+		$(':text').attr("disabled",true);
+	});
+}
+
+function modificar(){
+	$('.texto').dblclick(function(){
+		alert("ok");
+	});
+}
+
+$(document).ready(cargar);
+$(document).ready(habilitar);
+$(bloquear);
+$(modificar);
+
+//-------------------------
+
+$(document).ready(function(){
+	
+	$('#iBtnAceptar').click(function(){
+         if($("#iTxtNombre").val().length <= 0 || $("#iTxtApellido").val().length <= 0){
+        	 jAlert("campos con * no pueden estar vacios");
+         }		
+	});
+ 	
+ 	
+});
+
+//------------------------
+
+var nombre = $("#iTxtNombre").val().toLowerCase();            
+$('#iTxtApellido').val(nombre);	 
+
+//-----------------------
+
+var textos = $(':text');
+
+for(var x in textos){
+	$(textos[x]).hide();
+}
+
+//----------------------
+
+$(':text , label').hide();
+
+//---------------------- sort for me
+
+
+function ordenarVector(vector){
+	
+var intercambio = 0;
+	
+	for(var a = 0 ; a <= vector.length ; a++){
+		for(var b = a+1 ; b <= vector.length ; b++){
+			
+			if(vector[a] > vector[b]){
+				intercambio = vector[b];
+				vector[b] = vector[a];
+				vector[a] = intercambio;
+			}
+	  }
+	}
+}
+
+$(document).ready(function(){
+                                           
+	var vector = [1,223,4,222,45,9,56,3,89,7];	
+	
+	var originalVector = vector;
+	
+	document.write("tamaño del vector: "+vector.length+"<p>");
+	
+	document.write("Listado vector original: "+"<br>");
+	$.each(vector,function(x){
+		document.write("#"+x+": "+vector[x]+"<br>");
+	});
+   
+	document.write("----------------------------------"+"<br>");
+	document.write("Sort vector:");
+	
+    ordenarVector(vector);
+	
+    $.each(vector,function(x){
+    	document.write("#"+x+": "+vector[x]+"<br>");
+    });
+    
+    document.write("----------------------------------"+"<br>");
+    
+});
+
+//---------------------------------------- ocultar con slide
+
+$('#boton1').click(function(evt){
+	evt.preventDefault();
+	$("#panel1").slideDown ("slow");
+});
+
+$("#boton1").dblclick(function(evt){
+	evt.preventDefault;
+	$("#panel1").slideUp("slow");
+});
+
+//----
+
+$("#boton2").click(function(evt){
+	evt.preventDefault();
+	$("#panel2").slideDown("slow");
+});
+
+$("#boton2").dblclick(function(evt){
+	evt.preventDefault();
+	$("#panel2").slideUp("slow");
+});
+
+$("#ocultar").click(function(evt){
+	evt.preventDefault();
+	$("#boton1 , #boton2").hide("slow");
+	
+});
+
+//--------------------------------------- eliminar espacio antes del texto
+
+function limpiarTexto(){
+	var valor1 = $('#idValor1').attr('value').trim();
+	$('#idValor2').val(valor1);
+	
+}
+
+function mostrar(){
+	$('#idAceptar').click(limpiarTexto);
+}
+
+$(mostrar);
+
+//---------------------------------------- efecto con css hover
+
+
+var cssOver = {
+	'background-color':'red',
+};
+
+var cssOut = {
+	'background-color':'green',
+};
+
+function efecto1(){
+	$('#idForm').mouseover(function(){
+		$(this).css(cssOver);
+	});
+	
+	$('#idForm').mouseout(function(){
+		$(this).css(cssOut);
+	});
+}
+
+$(efecto1);
+
+//---
+
+var cssOver = {
+	'background-color':'red',
+    'text-decoration':'underline',
+    'color':'white',
+};
+
+var cssOut = {
+		'background-color':'blue',
+		'text-decoration':'none',
+		'color':'black',
+}; 
+
+function eventos(){
+
+	$('#idForm').bind('mouseover',function(evt){
+		evt.preventDefault();
+		$(this).css(cssOver);
+	});
+	
+	$('#idForm').bind('mouseout',function(evt){
+		evt.preventDefault();
+		$(this).css(cssOut);
+	});
+		
+}
+
+$(document).ready(eventos);
+
+//--------------------------------- efectos con animate
+
+var cssEfecto1 = {
+	'width':'100px',
+};
+
+var cssEfecto2 = {
+	'width':'300px',	
+};
+
+var $vector = [cssEfecto1 , cssEfecto2];
+
+//---
+
+$(document).ready(function(){
+	
+  for(var $a = 0 ; $a <= 2 ; $a++){	
+	for(var $x in $vector){
+	  $('#idConsulta').animate($vector[$x],'slow');
+	}}
+});
+
+
+//-------------------------------------- ejemplo de menu
+
+
+
+function inicioMenu(){
+    $('dd').hide();
+}
+
+function mostrarDD(){
+	$('dl').on('mouseenter','dt',function(){
+		$(this).next()
+		       .show()
+		       .siblings('dd').hide();
+	});
+}
+
+function ocultarDD(){
+	$('dl').on('mouseout','dt',function(){
+		$(this).next()
+		       .hide();
+	});
+}
+
+$(inicioMenu);
+$(mostrarDD);
+$(ocultarDD);
+
+//------------------------------------- ejemplo botones cambia banner
+
+
+
+var cssOver  = {
+	'background-color':'red',
+};
+
+var cssOut  = {
+		'background-color':'white',
+	};
+
+var cssOcultar = {
+	'display':'none',	
+};
+
+var cssMostrar = {
+   'display':'block',
+};
+
+var $vectorImg = $('#idPublicidad > a');
+
+function botones(){
+   	$('#idBtnUno').on('mouseenter',function(){
+   		$(this).css(cssOver);
+   		$('#idPublicidad > a').first().hide();
+   		$('#idPublicidad > a').first().show('slow');
+   	});
+   	
+   	$('#idBtnDos').on('mouseenter',function(){
+   		$(this).css(cssOver);
+   		$('#idPublicidad > a').first().hide();
+   		$('#idPublicidad > a').first().next().show('slow');
+   	});
+   	
+   	$('#idBtnTres').on('mouseenter',function(){
+   		$(this).css(cssOver);
+   		$('#idPublicidad > a').first().hide();
+   		$('#idPublicidad > a').last().show('slow');
+   	});
+   	
+   	$('#idBotones').on('mouseout','div',function(){
+   		$(this).css(cssOut);
+        ocultarOver();
+   	});
+}
+function ocultarInit(){
+  $('#idPublicidad > a').first().hide();	
+  $('#idPublicidad > a').first().next().hide();	
+  $('#idPublicidad > a').last().hide(); 
+}
+
+function ocultarOver(){
+	  $('#idPublicidad > a').first().show('slow');	
+	  $('#idPublicidad > a').first().next().hide();	
+	  $('#idPublicidad > a').last().hide();
+}
+
+
+$(ocultarInit);
+$(botones);
+
+//------------------ saber color
+
+function saberColor(){
+	$('#idBotones').on('mouseenter','div',function(){
+	   var $valor = $(this).css('background-color');
+	   $('#idSpan').html("El color es: "+$valor);
+	});
+}
+
+$(saberColor);
+
+//----------------- tomar texto con el cursor y brillar
+
+function leerTexto(){
+	var $textoSplit = $('p:first').text().split(" ");
+	var $texto = $textoSplit.join("</span> <span>");
+	
+	$('p:first').html("<span>"+$texto+"</span>");
+	
+	$('span').click(function(){
+		$(this).css('background-color','red');
+	});
+	
+}
+
+$(leerTexto);
+
+//----------------  tab 
+
+
+function ocultarContenido(){
+
+	var $contenido = $('#idContenidoTab > div');	
+	
+	$($contenido[0]).show();
+	$($contenido[0]).nextAll().hide();
+	
+}
+
+function controlTab(){
+	
+	var $contenido = $('#idContenidoTab > div');
+	var $indice = 0;
+	
+	$('#idTab').on('click','div',function(){
+		 $indice = $(this).index();
+		 
+		 $($contenido).hide();
+		 $($contenido[$indice]).show();
+		 
+	});
+	
+}
+
+$(ocultarContenido);
+$(controlTab);
