@@ -1,0 +1,445 @@
+//---------------------------------------------------- CLASE conexion -------------------
+
+<?php
+
+class conexion{
+  
+
+	private $servidor,
+	$usuario,
+	$clave,
+	$basedatos,
+	$conexion;
+	
+	public function __construct($_servidor, $_usuario, $_clave,$_basedatos){
+		$this->setServidor($_servidor);
+		$this->setUsuario($_usuario);
+		$this->setClave($_clave);
+		$this->setBaseDatos($_basedatos);
+	}
+	
+	public function conectarServidor(){
+		$this->conexion = mysql_connect($this->getServidor(), $this->getUsuario(), $this->getClave()) or die ("Error mysql_connect - Class:Conexion");
+		$this->setConectar($this->conexion);
+	}
+	 
+	public function conectarBaseDatos(){
+		$this->basedatos = mysql_select_db($this->getBaseDatos(),$this->getConectar()) or die ("Error mysql_select_db - Class:Conexion");
+	}
+	
+	public function desconectarBaseDatos(){
+		mysql_close($this->getConectar());
+		mysql_close($this->conectarBaseDatos());
+	}
+	 
+	// setter
+	 
+	public function setServidor($_servidor){
+		$this->servidor = $_servidor;
+	}
+	 
+	public function setUsuario($_usuario){
+		$this->usuario = $_usuario;
+	}
+	 
+	public function setClave($_clave){
+		$this->clave = $_clave;
+	}
+	 
+	public function setConectar($_conexion){
+		$this->conexion = $_conexion;
+	}
+	 
+	public function setBaseDatos($_basedatos){
+		$this->basedatos = $_basedatos;
+	}
+	 
+	// getter
+	 
+	public function getConectar(){
+		return $this->conexion;
+	}
+	 
+	public function getServidor(){
+		return $this->servidor;
+	}
+	 
+	public function getUsuario(){
+		return $this->usuario;
+	}
+	 
+	public function getClave(){
+		return $this->clave;
+	}
+	 
+	public function getBaseDatos(){
+		return $this->basedatos;
+	}
+	 
+}
+	
+
+
+//---------------------------------------------------- CLASE Sql -------------------
+
+
+
+<?php
+
+require_once 'conexion.php';
+
+class Sql{
+  
+	private $_conexion;
+	private $_pagina;
+	private $_posicion;
+    private $_inicio;
+    private $_totalRows;
+    
+	public function __construct(){
+		$this->_conexion = new conexion("localhost","xxx","xxx","xxxxxxx");
+		$this->_conexion->conectarServidor();
+		$this->_conexion->conectarBaseDatos(); 
+	}
+	
+	public function selectProducto($id){
+		$sql = "SELECT * FROM  productos WHERE id_estatus = '3'";
+		$query = mysql_query($sql,$this->_conexion->getConectar());
+		return $query;
+	}
+   
+	public function selectCategoria(){
+		$sql = "SELECT * FROM  categoria";
+		$query = mysql_query($sql,$this->_conexion->getConectar());
+		return $query;
+	}
+	
+	public function selectMarca(){
+		$sql = "SELECT * FROM marca";
+		$query = mysql_query($sql, $this->_conexion->getConectar());
+		return $query;
+	}
+	
+	public function selectProductoBuscar(){
+		$busca = $_POST['nombreProducto'];
+		$sql = "SELECT * FROM  productos WHERE nombre LIKE '%".$busca."%'";
+		$query = mysql_query($sql,$this->_conexion->getConectar());
+		$total = mysql_num_rows($query);
+		return $total;
+	}
+	
+	public function totalProductoPortada(){
+		$sql = "SELECT * FROM  producto WHERE id_estatus = 3";
+		$query = mysql_query($sql);
+		$total = mysql_num_rows($query);
+		return $total;
+	}
+	
+	public function paginarProducto($inicio,$cantidad){
+		$busca = $_POST['nombreProducto'];
+		$sql = "SELECT * FROM productos WHERE nombre LIKE '%".$busca."%' LIMIT $inicio , $cantidad";
+		$query = mysql_query($sql,$this->_conexion->getConectar());
+		return $query;
+	}
+	
+	public function comboDBCategoria(){
+		$resultado = $this->selectCategoria();
+		echo "<div id = \"categoria\">";
+	    echo "<span>Categorias</span>";
+		echo "<select name = \"comboCategoria\" id = \"categoria\">";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value =".$fila["id_categoria"].">".$fila["nombre"]."</option>";
+		}
+		echo "</select>";
+		echo "</div>";
+	}
+
+	public function comboDBMarca(){
+		$resultado = $this->selectMarca();
+		echo "<div id = \"marca\">";
+		echo "<label>Marcas </label>";
+		echo "<select name = \"comboMarca\" id = \"comboMarca\">";
+		while($fila = mysql_fetch_array($resultado)){
+			echo "<option value = ".$fila['nombre'].">".$fila['nombre']."</option>";
+		}
+		echo "</select>";
+		echo "</div>";
+	} 
+	
+	//setter
+	
+	public function setInicio($inicio){
+		$this->_inicio = $inicio;
+	}
+	
+	public function setPosicion($posicion){
+		$this->_posicion = $posicion;
+	}
+	
+	public function setPagina($pagina){
+		$this->_pagina = $pagina;
+	}
+	
+	public function setTotalRows($total){
+		$this->_totalRows = $total;
+	}
+	
+	//getter
+	
+	public function getInicio(){
+		return $this->_inicio;
+	}
+	
+	public function getPosicion(){
+		return $this->_posicion;
+	}
+	
+	public function getPagina(){
+		return  $this->_pagina;
+	}
+	
+	public function getTotalRows(){
+		return $this->_totalRows;
+	}
+	
+}//endClass
+
+
+//---------------------------------------------------- CLASE Html -------------------
+
+
+<?php
+
+require_once'Sql.php';
+
+Class Html {
+
+    private $sql;
+  
+	public function __construct(){
+		$this->sql = new Sql();
+	}
+	
+	public function addHtml($_titulo,$_css){
+		echo "<html>";
+		echo "<head><title>$_titulo</title>";
+		echo "<script src = \"js/jquery.js\" type = \"text/javascript\"></script>";
+		echo "<script src = \"js/prueba.js\" type = \"text/javascript\"></script>";
+		echo "<script src = \"js/jquery.cycle.all.js\" type = \"text/javascript\" ></script>";
+		echo "</head>";
+		echo "<link href = \"css/$_css\" type = \"text/css\" rel = \"stylesheet\" />";
+		echo "<link rel=\"shortcut icon\" href=\"images/mini_logo.ico\">";
+		echo "<body>";
+		session_start();
+	}
+	
+	public function addPublicidadEstatica(){
+		echo "<div id =\"publicidadEstatica\">";
+		echo "<div></div>";
+		echo "</div>";
+	}
+	
+	public function addContenedorCabecera(){
+	 echo "<div id = \"cabecera\">";
+	 echo "<div id = \"logo\"></div>";
+     echo "<div id = \"menu\">";
+	 echo "<ul>
+	 	 <li>|</li>
+		 <li><a href = \"Index.php\">Inicio</a></li>
+		 <li>|</li>
+		 <li><a href = \"Mision.php\">Misión</a></li>
+		 <li>|</li>
+		 <li><a href = \"Vision.php\">Visión</a></li>
+		 <li>|</li>
+		 <li><a href = \"Producto.php\">Productos</a></li>
+		 <li>|</li>
+		 <li><a href = \"Contacto.php\">Contactos</a></li>
+		 </ul>
+		 </div>";
+    echo "<div id = \"banner\">";
+    echo	"<div><img src = \"images/weld3.jpg\"></div>";
+    echo	"<div><img src = \"images/tools1.jpg\"></div>";
+    echo	"<div><img src = \"images/oxygen1.jpg\"></div>";
+    echo	"<div><img src = \"images/weld5.jpg\"></div>";
+    echo	"</div>
+		</div>";
+    //lista las imagenes de diferentes marcas debajo del slide de imagenes principal
+    echo "<div id = \"marcas\">";
+    echo "<img src = \"images/miller.jpeg\">";
+    echo "<img src = \"images/carborundum.jpg\">";
+    echo "<img src = \"images/lincoln.jpeg\">";
+    echo "<img src = \"images/harris.jpeg\">";
+    echo "<img src = \"images/esab.jpeg\">";
+    echo "<img src = \"images/westarco.jpeg\">";
+    echo "<img src = \"images/bahco.jpg\">";
+    echo "<img src = \"images/irwin.jpg\">";
+    echo "<img src = \"images/black_decker.jpg\">";
+    echo "<img src = \"images/stanley.jpg\">";
+    echo "</div>";
+	}
+	
+	public function addContenedorTornillosUp(){
+		echo "<div id = \"tornilloTopLeft\"></div>";
+		echo "<div id = \"tornilloTopRight\"></div>";
+	}
+	
+	public function addContenedorTornillosDown(){
+		echo "<div id = \"tornilloBottomLeft\"></div>";
+		echo "<div id = \"tornilloBottomRight\"></div>";
+	}
+	
+	public function addContenedorHorarioTelefono(){
+		echo "<div id = \"horario\"><img src = \"images/reloj.png\"> <span>Lunes a Viernes 7am - 5pm / Sabados 7am - 1pm</span></div>";
+		echo "<div id = \"telefono\"><img src = \"images/telefono.png\"> <span> (0241) - 858.33.08 / 316.25.98 </span></div>";
+	}
+	
+	public function addContenedorPie(){
+		echo "<div id = \"contenidoPie\">";
+		echo "<a href = \"Mision.php\">Misión</a> <a href = \"Vision.php\">Visión</a> <a href = \"Producto.php\">Productos</a> <a href = \"#\">Mapa del Sitio</a> <a href = \"Contacto.php\">Contactos</a> <a href = \"Contacto.php\">Ubicanos</a>";
+		echo "</div>";
+	}
+	
+	public function addContenidoTag($tag){
+		echo "<div id = \"tagProductos\"><span>:::: $tag</span></div>";
+		echo "<div id = \"tagMensaje\"><span>SEGURIDAD INDUSTRIAL, MAQ. P/SOLDAR, EQP. DE OXICORTE (VENTA Y MANTENIMIENTO) HERRAMIENTAS Y ABRASIVOS. MOVIL</span></div>";
+	}
+
+	public function addMapa(){
+		echo "<table = \"mapa\"><tr><td>";
+		echo '<iframe width="920" height="360" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.ve/maps?f=q&amp;source=s_q&amp;hl=es&amp;geocode=&amp;q=Valencia,+Carabobo+,+distribuidor+los+samanes,+calle+84+roscio&amp;aq=&amp;sll=10.168439,-67.992196&amp;sspn=0.011215,0.021136&amp;ie=UTF8&amp;t=m&amp;ll=10.168439,-67.992196&amp;spn=0.011215,0.021136&amp;output=embed"></iframe><br /><small><a href="https://maps.google.co.ve/maps?f=q&amp;source=embed&amp;hl=es&amp;geocode=&amp;q=Valencia,+Carabobo+,+distribuidor+los+samanes,+calle+84+roscio&amp;aq=&amp;sll=10.168439,-67.992196&amp;sspn=0.011215,0.021136&amp;ie=UTF8&amp;t=m&amp;ll=10.168439,-67.992196&amp;spn=0.011215,0.021136" style="color:#0000FF;text-align:left">Ver mapa más grande</a></small>';
+		echo "</td><td valign = \"top\">";
+		echo "</td></tr>";
+		echo "<tr><td>";
+		echo "---------------------------------------------------------------------------------------------------------------------------------------------------------";
+		echo "</td></tr>";
+		echo "<tr><td>";
+		echo "<b>Nro Telf:</b>(0241) 858.33.08 / 316.25.98";
+		echo "</td></tr>";
+		echo "<tr><td>";
+		echo "<b>Email:</b>GASMOCA@GMAIL.COM";
+		echo "</td></tr>";
+		echo "<tr><td>";
+		echo "<b>Dirección:</b>Valencia EDO Carabobo  Distribuidor Los Samanes Calle #84 Roscio";
+		echo "</td></tr>";
+		echo "<tr><td>";
+		echo "----------------------------------------------------------------------------------------------------------------------------------------------------";
+		echo "</td></tr>";
+		echo "</table>";
+	}
+	
+	public function addContenidoFormBuscar(){
+		echo "<div id = \"buscar\">";
+		//echo "<form method = \"post\">";
+		echo "<label>Buscar </label>"."<input type =  \"text\"  id = \"textProducto\" name = \"nombreProducto\">
+			  <input type = \"submit\" id = \"btnBuscar\" name = \"btnBuscar\" value = \"\">";
+	    //echo "</form>";
+		echo "</div>";
+	}
+	
+	public function addContenidoFormCategoria (){
+		$this->addSelectCategoria();
+	}
+
+	public function addContenidoFormMarca(){
+		$this->sql->comboDBMarca();
+	}
+	
+	public function addContenidoTwitter(){
+		echo "<div id = \"twitter\">";
+		echo "<a class=\"twitter-timeline\" href=\"https://twitter.com/gasmoca\" data-widget-id=\"248183883944837121\">Tweets por @gasmoca</a>";
+		echo "<script>!function(d,s,id){";
+		echo "var js,fjs=d.getElementsByTagName(s)[0];";
+		echo	"if(!d.getElementById(id)){";
+		echo		"js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);";
+		echo	"}}(document,\"script\",\"twitter-wjs\");";
+		echo	"</script>";
+		echo	"</div>";
+	}
+	
+	public function addContenidoEnlaces(){
+		echo "<div id = \"carrito\">";
+		echo "<img src = \"images/carrito.png\">";
+		echo "<span>Si Deseas Hacer una Solicitud Click Aquí</span>";
+		echo "</div>";
+		 
+		echo "<div id = \"mapa\">";
+		echo "<a href = \"Contacto.php\"> <img src = \"images/map.jpg\">";
+		echo "<span>Quieres Saber Donde Estamos</span></a>";
+		echo "</div>";
+		 
+		echo "<div id = \"contactenos\">";
+		echo "<a href = \"Contacto.php\"> <img src = \"images/contactenos.jpg\">";
+		echo "<span>Contactenos para cualquier información</span></a>";
+		echo "<span></span>";
+		echo "</div>";
+	}
+	
+	public function addPieEnd(){
+		echo "<div id = \"pie\"></div>";
+	}
+		
+	public function endHtml(){
+		echo "</body>";
+		echo "</html>";
+	}
+	
+	public function addSelectCategoria(){
+     $this->sql->comboDBCategoria();  		
+	}
+	
+}//end Class
+
+
+//---------------------------------------------------- Page Index.php -------------------
+
+
+<?php
+
+require_once'Html.php';
+require_once 'Sql.php';
+
+$html = new Html();
+$sql = new Sql();
+
+$query = $sql->selectProducto(3);
+
+//------------------------------------------ CONTENIDO HTML --->
+
+$html->addHtml("Gasmoca","principal.css");
+$html->addPublicidadEstatica();
+
+echo "<div id = \"contenedor\">";//+
+$html->addContenedorTornillosUp();
+$html->addContenedorHorarioTelefono();
+$html->addContenedorCabecera();
+
+ echo "<div id = \"contenido\">";//+
+  $html->addContenidoTag("Productos");
+
+     echo "<div id = \"productos\">";//+
+
+       echo "<table border = 0 id = \"cuadroProducto\">";//+
+       echo "<tr>";
+       $c = 0;
+       while($c <= $array = mysql_fetch_array($query)){
+       echo "<td>";echo "<img src =".$array['path_foto']." id = \"cuadroImagen\">"; echo $array['nombre']; echo "</td>";  	
+              
+         if(($c == 3)||($c == 7)||($c == 11)||($c == 15))
+        	echo "</tr><tr>";
+         $c++; 
+       }
+     echo "</table>";//endCuadroProducto-
+     echo "</div>";//endProductos-
+
+  $html->addContenidoFormCategoria();
+  $html->addContenidoTwitter();
+  $html->addContenidoEnlaces();
+     
+ echo "</div>"; //endContenido-
+ 
+ $html->addContenedorPie();
+ $html->addContenedorTornillosDown();
+echo "</div>";//endContenedor-
+
+$html->addPieEnd();
+$html->endHtml();
